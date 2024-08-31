@@ -10,6 +10,8 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 @Entity
 @Data
@@ -22,6 +24,8 @@ public class Category {
 	
 	private String categoryPosition;
 	
+	@EqualsAndHashCode.Exclude
+	@ToString.Exclude
 	@OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true) // Causes any Clothing connected to be deleted should a Category be deleted
 	private Set<Clothing> clothes = new HashSet<Clothing>(); // Connects the class Category to the class Clothing
 }

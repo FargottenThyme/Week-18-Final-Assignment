@@ -86,19 +86,22 @@ public class ClothingArticleService {
 	
 	@Transactional(readOnly = false)
 	public void deleteCategoryById(Long categoryId) {
-		categoryDao.delete(findCategoryById(categoryId));
+		Category category = findCategoryById(categoryId);
+		categoryDao.delete(category);
 	}
 
 	@Transactional(readOnly = false)
 	public ClothingData saveClothing(Long categoryId, ClothingData clothingData) {
 		Category category = findCategoryById(categoryId);
-		Clothing clothing = findOrCreateClothing(categoryId, clothingData.getClothingId());
+		Clothing clothing = findOrCreateClothing(clothingData.getClothingId());
 
 		setFieldsInClothing(clothing, clothingData);
 		clothing.setCategory(category);
 		category.getClothes().add(clothing);
+		
+		Clothing dbClothing = clothingDao.save(clothing);
 
-		return new ClothingData(clothingDao.save(clothing));
+		return new ClothingData(dbClothing);
 	}
 
 	private void setFieldsInClothing(Clothing clothing, ClothingData clothingData) {
@@ -106,32 +109,26 @@ public class ClothingArticleService {
 		clothing.setClothingMaterial(clothingData.getClothingMaterial());
 	}
 
-	private Clothing findOrCreateClothing(Long categoryId, Long clothingId) {
+	private Clothing findOrCreateClothing(Long clothingId) {
 		Clothing clothing;
 
 		if (Objects.isNull(clothingId)) {
 			clothing = new Clothing();
 		} else {
-			clothing = findClothingById(categoryId, clothingId);
+			clothing = findClothingById(clothingId);
 		}
 
 		return clothing;
 	}
 
-	private Clothing findClothingById(Long categoryId, Long clothingId) {
-		Clothing clothing = clothingDao.findById(clothingId)
+	private Clothing findClothingById(Long clothingId) {
+		return clothingDao.findById(clothingId)
 				.orElseThrow(() -> new NoSuchElementException("Clothing with ID=" + clothingId + " does not exist."));
-		if (clothing.getCategory().getCategoryId().equals(categoryId)) {
-			return clothing;
-		} else {
-			throw new IllegalArgumentException(
-					"Clothing with ID=" + clothingId + " does not exist within Category with ID=" + categoryId + ".");
-		}
 	}
 
 	@Transactional(readOnly = true)
-	public ClothingData showClothingById(Long categoryId, Long clothingId) {
-		return new ClothingData(findClothingById(categoryId, clothingId));
+	public ClothingData showClothingById(Long clothingId) {
+		return new ClothingData(findClothingById(clothingId));
 
 	}
 
@@ -141,13 +138,14 @@ public class ClothingArticleService {
 	}
 
 	@Transactional(readOnly = false)
-	public void deleteClothingById(Long categoryId, Long clothingId) {
-		clothingDao.delete(findClothingById(categoryId, clothingId));
+	public void deleteClothingById(Long clothingId) {
+		Clothing clothing = findClothingById(clothingId);
+		clothingDao.delete(clothing);
 	}
 
 	@Transactional(readOnly = false)
-	public ColorData assignColorToClothingByID(Long categoryId, Long clothingId, Long colorId) {
-		Clothing clothing = findClothingById(categoryId, clothingId);
+	public ColorData assignColorToClothingByID(Long clothingId, Long colorId) {
+		Clothing clothing = findClothingById(clothingId);
 		Color color = findColorById(colorId);
 
 		color.getClothes().add(clothing);

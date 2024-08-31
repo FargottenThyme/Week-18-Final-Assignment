@@ -59,7 +59,6 @@ public class ClothingArticleController {
 	}
 
 	@DeleteMapping("/category/{categoryId}")
-	@ResponseStatus(code = HttpStatus.NO_CONTENT)
 	public Map<String, String> deleteCategoryById(@PathVariable Long categoryId) {
 		log.info("Deleting category with ID={}", categoryId);
 
@@ -87,6 +86,7 @@ public class ClothingArticleController {
 	@PutMapping("/category/{categoryId}/clothing/{clothingId}")
 	@ResponseStatus(code = HttpStatus.CREATED)
 	public ClothingData updateClothingById(@PathVariable Long categoryId, @PathVariable Long clothingId, @RequestBody ClothingData clothingData) {
+		clothingData.setClothingId(clothingId);
 		log.info("Updating clothing with ID={}, within category with ID={}", clothingId, categoryId);
 		return clothingArticleService.saveClothing(categoryId, clothingData);
 	}
@@ -95,7 +95,7 @@ public class ClothingArticleController {
 	@ResponseStatus(code = HttpStatus.OK)
 	public ClothingData showClothingById(@PathVariable Long categoryId, @PathVariable Long clothingId) {
 		log.info("Showing Clothing with ID={} within Category with ID={}", clothingId, categoryId);
-		return clothingArticleService.showClothingById(categoryId, clothingId);
+		return clothingArticleService.showClothingById(clothingId);
 	}
 	
 	@GetMapping("/category/{categoryId}/clothing")
@@ -106,11 +106,10 @@ public class ClothingArticleController {
 	}
 	
 	@DeleteMapping("/category/{categoryId}/clothing/{clothingId}")
-	@ResponseStatus(code = HttpStatus.NO_CONTENT)
 	public Map<String, String> deleteClothingById(@PathVariable Long categoryId, @PathVariable Long clothingId) {
 		log.info("Deleting clothing with ID={} within category with ID={}", clothingId, categoryId);
 		
-		clothingArticleService.deleteClothingById(categoryId, clothingId);
+		clothingArticleService.deleteClothingById(clothingId);
 		
 		return Map.of("Message", "Deletion of clothing with ID=" + clothingId + " was successful");
 	}
@@ -128,7 +127,7 @@ public class ClothingArticleController {
 	@ResponseStatus(code = HttpStatus.CREATED)
 	public ColorData assignColorToClothingById(@PathVariable Long categoryId, @PathVariable Long clothingId, @PathVariable Long colorId) {
 		log.info("Assigning Color with ID={} to Clothing with ID={}", colorId, clothingId);
-		return clothingArticleService.assignColorToClothingByID(categoryId, clothingId, colorId);
+		return clothingArticleService.assignColorToClothingByID(clothingId, colorId);
 	}
 	
 	@GetMapping("/color")
